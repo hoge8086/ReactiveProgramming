@@ -1,0 +1,62 @@
+﻿<Window x:Class="WpfValidationSample.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfValidationSample"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <!--バリデーションエラー時の表示-->
+        <!--https://sourcechord.hatenablog.com/entry/2014/06/10/000827-->
+        <ControlTemplate x:Key="ValidationTemplate">
+            <WrapPanel>
+                <!--★dornedElementPlaceholderにより、ErrorTemplateが適用される元の要素を配置できる-->
+                <AdornedElementPlaceholder x:Name="adornedelem" />  <!--この例ではこれが元のTextBoxに置き換わる-->
+                <!--後ろにエラー内容を表示する-->
+                <TextBlock Foreground="Red" Text="{Binding AdornedElement.(Validation.Errors)[0].ErrorContent, ElementName=adornedelem}" />
+            </WrapPanel>
+        </ControlTemplate>
+    </Window.Resources>
+    <Grid>
+        <StackPanel>
+            <TextBlock Text="100より大きい値を入れるとエラー"/>
+            <WrapPanel Margin="5,5,0,0">
+                <TextBlock Width="180" Text="(0)バリデーションなし："/>
+                <TextBox Text="{Binding Sample0,UpdateSourceTrigger=PropertyChanged}" Width="300" Margin="10,0,0,0"
+                         Validation.ErrorTemplate="{StaticResource ValidationTemplate}"/> <!-- すべてのサンプルでエラー表示は同じ方法を使用(Validationクラスの添付プロパティを使用する)-->
+                         <!--バリデーションなしだが、標準で変換のためのバリデーションチェックが存在している-->
+            </WrapPanel>
+            <WrapPanel Margin="5,5,0,0">
+                <TextBlock Width="180" Text="(1)ValidatesOnExceptions："/>
+                <TextBox Text="{Binding Sample1,UpdateSourceTrigger=PropertyChanged,ValidatesOnExceptions=True}" Width="300" Margin="10,0,0,0"
+                         Validation.ErrorTemplate="{StaticResource ValidationTemplate}"/> <!-- すべてのサンプルでエラー表示は同じ方法を使用(Validationクラスの添付プロパティを使用する)-->
+            </WrapPanel>
+            <WrapPanel Margin="5,5,0,0">
+                <TextBlock Width="180" Text="(2)ValidationRule："/>
+                <TextBox Width="300" Margin="10,0,0,0"
+                         Validation.ErrorTemplate="{StaticResource ValidationTemplate}"> <!-- すべてのサンプルでエラー表示は同じ方法を使用(Validationクラスの添付プロパティを使用する)-->
+                    <TextBox.Text>
+                        <Binding Path="Sample2" UpdateSourceTrigger="PropertyChanged">
+                            <!--自作したバリデーションルールを指定する-->
+                            <Binding.ValidationRules>
+                                <local:MaxIntRule Max="100"/>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+            </WrapPanel>
+            <WrapPanel Margin="5,5,0,0">
+                <TextBlock Width="180" Text="(3)INotifyDataErrorInfo："/>
+                <!--ValidatesOnNotifyDataErrorsを指定するがデフォがTrueなので明示的に指定する必要性はない-->
+                <TextBox Text="{Binding Sample3,UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}" Width="300" Margin="10,0,0,0"
+                         Validation.ErrorTemplate="{StaticResource ValidationTemplate}"/>   <!-- すべてのサンプルでエラー表示は同じ方法を使用(Validationクラスの添付プロパティを使用する)-->
+            </WrapPanel>
+            <WrapPanel Margin="5,5,0,0">
+                <TextBlock Width="180" Text="(4)ReactiveProperty："/>
+                <TextBox Text="{Binding Sample4.Value,UpdateSourceTrigger=PropertyChanged}" Width="300" Margin="10,0,0,0"
+                         Validation.ErrorTemplate="{StaticResource ValidationTemplate}"/>   <!-- すべてのサンプルでエラー表示は同じ方法を使用(Validationクラスの添付プロパティを使用する)-->
+            </WrapPanel>
+        </StackPanel>
+    </Grid>
+</Window>
